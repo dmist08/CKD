@@ -18,8 +18,9 @@ Key aspects:
 
 - Two datasets merged:
   - **UCI CKD dataset** (400 samples, 25 attributes)
-  - **Risk factor CKD dataset (CKD-dataset-v2)** (200 samples, 29 attributes) derived from the paper  
-    *“Risk Factor Prediction of Chronic Kidney Disease based on Machine Learning Algorithms”* by Md. Ashiqul Islam et al.
+      - URL: {https://archive.ics.uci.edu/dataset/336/chronic+kidney+disease}
+  - **Risk factor CKD dataset (CKD-dataset-v2)** (200 samples, 29 attributes)
+      - URL: {https://archive.ics.uci.edu/dataset/857/risk+factor+prediction+of+chronic+kidney+disease}
 - Final merged dataset: **600 records**, **28 features**, binary target: `affected` (1 = CKD, 0 = Non-CKD)
 - Main model: **K-Nearest Neighbors (KNN)**
 - Best configuration (from GridSearchCV, 5-fold CV):  
@@ -32,6 +33,14 @@ Key aspects:
     [[44  0]
      [ 2 74]]
  ``` 
+
+---
+
+## Steps to run project
+
+- First download the datasets and keep them in 'data/raw/' folder.
+- After installing all the libraries run the "merge_and_clean.ipynb" file, to merge both the datasets.
+- Then open "knn_modelling.ipynb" file, install all the requirements, then run to implement the pipeline, at last the model pipeline will be saved in "models/" folder.
 
 ---
 
