@@ -1,0 +1,21 @@
+models/*.joblib filter=lfs diff=lfs merge=lfs -text
+
+# Track model files with Git LFS if configured locally
+models/*.joblib filter=lfs diff=lfs merge=lfs -text
+
+# Normalize line endings for text files
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+
+# Keep notebooks with LF line endings to avoid CRLF warnings
+*.ipynb text eol=lf
+
+# Treat other known binaries as binary
+*.pdf binary
+*.docx binary
+
+# Notes:
+# - If you want to use Git LFS for tracked files, install and run `git lfs install` locally.
+# - You can add custom notebook diffs (nbdime) or strip outputs (nbstripout) for cleaner diffs.

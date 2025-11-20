@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Data and large files (adjust as needed)
+data/raw/
+data/ckd_full.csv
+data/ckd-dataset-v2.csv
+models/*.joblib
+reports/
+*.sqlite3
+
+# Logs
+*.log
+
+# macOS
+._*
+
+# Windows
+ehthumbs.db
+Icon?\r
