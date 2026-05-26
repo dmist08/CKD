@@ -33,3 +33,6 @@ reports/
 # Windows
 ehthumbs.db
 Icon?\r
+
+# Project PDFs
+Kidney Disease Prediction System using Machine Learning.pdf
