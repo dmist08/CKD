@@ -1,6 +1,16 @@
+---
+title: NephroAI
+emoji: 🩺
+colorFrom: purple
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # NephroAI: Chronic Kidney Disease Prediction System
 
-[![Live Demo](https://img.shields.io/badge/%F0%9F%9A%80-Live%20Demo-purple?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/dmist08/NephroAI)
+[![Live Demo](https://img.shields.io/badge/%F0%9F%9A%80-Live%20Demo-purple?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/dmist36/NephroAI)
 
 NephroAI is a state-of-the-art, publication-grade machine learning system designed to predict and diagnose **Chronic Kidney Disease (CKD)** using an optimized, leakage-free clinical K-Nearest Neighbors (KNN) pipeline.
 
