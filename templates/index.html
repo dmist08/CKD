@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NephroAI | Chronic Kidney Disease Prediction System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #15102a 50%, #06020f 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-focus: rgba(255, 255, 255, 0.15);
+            --accent-primary: #8b5cf6;
+            --accent-primary-glow: rgba(139, 92, 246, 0.4);
+            --accent-secondary: #ec4899;
+            --accent-healthy: #10b981;
+            --accent-healthy-glow: rgba(16, 185, 129, 0.3);
+            --accent-diseased: #ef4444;
+            --accent-diseased-glow: rgba(239, 68, 68, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient glow background decoration */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(120px);
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        body::before {
+            top: -100px;
+            left: -100px;
+            background: var(--accent-primary);
+        }
+
+        body::after {
+            bottom: -100px;
+            right: -100px;
+            background: var(--accent-secondary);
+        }
+
+        header {
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--accent-secondary);
+        }
+
+        .github-link {
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1.2rem;
+            border-radius: 9999px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .github-link:hover {
+            background: var(--glass-focus);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-primary-glow);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 3rem 4rem;
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .form-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .label-value {
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        /* Beautiful styled inputs */
+        input[type="text"], input[type="number"], select {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            outline: none;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+        }
+
+        select option {
+            background: #110e20;
+            color: var(--text-main);
+        }
+
+        /* Styled Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s;
+            margin: 12px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-primary-glow);
+            transition: transform 0.1s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* Segmented control for binary inputs */
+        .toggle-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 4px;
+            width: 100%;
+        }
+
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .toggle-option input[type="radio"] {
+            display: none;
+        }
+
+        .toggle-option label {
+            display: block;
+            padding: 0.7rem;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: none;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-option input[type="radio"]:checked + label {
+            background: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-predict {
+            grid-column: span 2;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            padding: 1.1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-predict:active {
+            transform: translateY(1px);
+        }
+
+        /* Results section sticky card */
+        .results-section {
+            position: sticky;
+            top: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .results-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            color: var(--text-muted);
+            transition: opacity 0.5s ease;
+        }
+
+        .placeholder-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: var(--text-muted);
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: var(--glass-border); }
+            50% { border-color: var(--accent-primary); }
+            100% { border-color: var(--glass-border); }
+        }
+
+        .result-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-badge {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0.6rem 1.6rem;
+            border-radius: 9999px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        .result-badge.healthy {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--accent-healthy);
+            color: var(--accent-healthy);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+        }
+
+        .result-badge.diseased {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-diseased);
+            color: var(--accent-diseased);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Circular radial progress bar */
+        .progress-circle {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-primary) 0%, rgba(255, 255, 255, 0.05) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            margin-bottom: 2rem;
+            transition: background 1s ease;
+        }
+
+        .progress-circle::after {
+            content: '';
+            position: absolute;
+            width: 156px;
+            height: 156px;
+            background: #130f24;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .progress-inner {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .result-description {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            max-width: 280px;
+        }
+
+        .result-description strong {
+            color: #ffffff;
+        }
+
+        /* Info helper panel */
+        .info-panel {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-title {
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        footer {
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.05);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive constraints */
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+                padding: 2rem;
+            }
+            .results-section {
+                position: static;
+            }
+            header {
+                padding: 1.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            .btn-predict {
+                grid-column: span 1;
+            }
+            .form-section {
+                padding: 1.5rem;
+            }
+            header {
+                padding: 1rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            NEPHRO<span style="font-weight: 300;">AI</span><span class="logo-dot"></span>
+        </div>
+        <a href="https://github.com/dmist08/CKD" class="github-link" target="_blank">
+            <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            GitHub Repository
+        </a>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <div class="section-header">
+                <h1 class="section-title">Clinical Attributes</h1>
+                <p class="section-subtitle">Provide clinical test results below. The machine learning pipeline utilizes these features for diagnosis.</p>
+            </div>
+            
+            <form id="prediction-form">
+                <div class="input-grid">
+                    
+                    <!-- Specific Gravity -->
+                    <div class="form-group">
+                        <label for="sg">Specific Gravity
+                            <span class="label-value" id="sg-val">1.020</span>
+                        </label>
+                        <input type="range" id="sg" name="sg" min="1.005" max="1.025" step="0.005" value="1.020" oninput="document.getElementById('sg-val').innerText = parseFloat(this.value).toFixed(3)">
+                    </div>
+                    
+                    <!-- Albumin -->
+                    <div class="form-group">
+                        <label for="al">Albumin (al)
+                            <span class="label-value" id="al-val">0</span>
+                        </label>
+                        <input type="range" id="al" name="al" min="0" max="5" step="1" value="0" oninput="document.getElementById('al-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- Red Blood Cells -->
+                    <div class="form-group">
+                        <label>Red Blood Cells (rbc)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-option">
+                                <input type="radio" id="rbc-normal" name="rbc" value="0.0" checked>
+                                <label for="rbc-normal">Normal</label>
+                            </div>
+                            <div class="toggle-option">
+                                <input type="radio" id="rbc-abnormal" name="rbc" value="1.0">
+                                <label for="rbc-abnormal">Abnormal</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pus Cell -->
+                    <div class="form-group">
+                        <label>Pus Cell (pc)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-option">
+                                <input type="radio" id="pc-normal" name="pc" value="0.0" checked>
+                                <label for="pc-normal">Normal</label>
+                            </div>
+                            <div class="toggle-option">
+                                <input type="radio" id="pc-abnormal" name="pc" value="1.0">
+                                <label for="pc-abnormal">Abnormal</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Blood Glucose Random -->
+                    <div class="form-group">
+                        <label for="bgr">Blood Glucose Random
+                            <span class="label-value"><span id="bgr-val">120</span> mg/dl</span>
+                        </label>
+                        <input type="range" id="bgr" name="bgr" min="50" max="500" step="5" value="120" oninput="document.getElementById('bgr-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- Blood Urea -->
+                    <div class="form-group">
+                        <label for="bu">Blood Urea
+                            <span class="label-value"><span id="bu-val">40</span> mg/dl</span>
+                        </label>
+                        <input type="range" id="bu" name="bu" min="10" max="300" step="2" value="40" oninput="document.getElementById('bu-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- Serum Creatinine -->
+                    <div class="form-group">
+                        <label for="sc">Serum Creatinine
+                            <span class="label-value"><span id="sc-val">1.2</span> mg/dl</span>
+                        </label>
+                        <input type="range" id="sc" name="sc" min="0.1" max="15.0" step="0.1" value="1.2" oninput="document.getElementById('sc-val').innerText = parseFloat(this.value).toFixed(1)">
+                    </div>
+                    
+                    <!-- Hemoglobin -->
+                    <div class="form-group">
+                        <label for="hemo">Hemoglobin
+                            <span class="label-value"><span id="hemo-val">15.0</span> g/dl</span>
+                        </label>
+                        <input type="range" id="hemo" name="hemo" min="3.0" max="18.0" step="0.1" value="15.0" oninput="document.getElementById('hemo-val').innerText = parseFloat(this.value).toFixed(1)">
+                    </div>
+                    
+                    <!-- Packed Cell Volume -->
+                    <div class="form-group">
+                        <label for="pcv">Packed Cell Volume
+                            <span class="label-value"><span id="pcv-val">44</span> %</span>
+                        </label>
+                        <input type="range" id="pcv" name="pcv" min="15" max="55" step="1" value="44" oninput="document.getElementById('pcv-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- Red Blood Cell Count -->
+                    <div class="form-group">
+                        <label for="rbcc">Red Blood Cell Count
+                            <span class="label-value"><span id="rbcc-val">5.2</span> M/cmm</span>
+                        </label>
+                        <input type="range" id="rbcc" name="rbcc" min="2.0" max="8.0" step="0.1" value="5.2" oninput="document.getElementById('rbcc-val').innerText = parseFloat(this.value).toFixed(1)">
+                    </div>
+                    
+                    <!-- Hypertension -->
+                    <div class="form-group">
+                        <label>Hypertension (htn)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-option">
+                                <input type="radio" id="htn-no" name="htn" value="0.0" checked>
+                                <label for="htn-no">No</label>
+                            </div>
+                            <div class="toggle-option">
+                                <input type="radio" id="htn-yes" name="htn" value="1.0">
+                                <label for="htn-yes">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Diabetes Mellitus -->
+                    <div class="form-group">
+                        <label>Diabetes Mellitus (dm)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-option">
+                                <input type="radio" id="dm-no" name="dm" value="0.0" checked>
+                                <label for="dm-no">No</label>
+                            </div>
+                            <div class="toggle-option">
+                                <input type="radio" id="dm-yes" name="dm" value="1.0">
+                                <label for="dm-yes">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Glomerular Filtration Rate -->
+                    <div class="form-group">
+                        <label for="grf">Glomerular Filtration Rate (GFR)
+                            <span class="label-value"><span id="grf-val">95</span> mL/min/1.73m²</span>
+                        </label>
+                        <input type="range" id="grf" name="grf" min="5" max="200" step="1" value="95" oninput="document.getElementById('grf-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- CKD Stage -->
+                    <div class="form-group">
+                        <label for="stage">Estimated Stage
+                            <span class="label-value">Stage <span id="stage-val">1</span></span>
+                        </label>
+                        <input type="range" id="stage" name="stage" min="1" max="5" step="1" value="1" oninput="document.getElementById('stage-val').innerText = this.value">
+                    </div>
+
+                    <!-- Age (Metadata slider) -->
+                    <div class="form-group full-width">
+                        <label for="age">Patient Age
+                            <span class="label-value"><span id="age-val">45</span> years old</span>
+                        </label>
+                        <input type="range" id="age" name="age" min="1" max="100" step="1" value="45" oninput="document.getElementById('age-val').innerText = this.value">
+                    </div>
+                    
+                    <!-- Hidden helpers for unselected pipeline features -->
+                    <input type="hidden" name="bp" value="80.0">
+                    <input type="hidden" name="su" value="0.0">
+                    <input type="hidden" name="pcc" value="0.0">
+                    <input type="hidden" name="ba" value="0.0">
+                    <input type="hidden" name="sod" value="138.0">
+                    <input type="hidden" name="pot" value="4.1">
+                    <input type="hidden" name="wbcc" value="7800.0">
+                    <input type="hidden" name="cad" value="0.0">
+                    <input type="hidden" name="appet" value="0.0">
+                    <input type="hidden" name="pe" value="0.0">
+                    <input type="hidden" name="ane" value="0.0">
+
+                    <button type="button" class="btn-predict" id="btn-predict">ANALYZE CLINICAL PROFILE</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="results-section">
+            <div class="results-card">
+                
+                <!-- Loading Spinner -->
+                <div class="spinner" id="spinner"></div>
+
+                <!-- Placeholder state -->
+                <div class="results-placeholder" id="placeholder">
+                    <div class="placeholder-icon">🩺</div>
+                    <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff;">Diagnosis Report</h3>
+                    <p style="font-size: 0.9rem; max-width: 250px; line-height: 1.5;">Configure clinical values and press Analyze to evaluate kidney pathology.</p>
+                </div>
+
+                <!-- Prediction result container -->
+                <div class="result-container" id="result-container">
+                    <div class="result-badge" id="result-badge">HEALTHY</div>
+                    
+                    <div class="progress-circle" id="progress-circle">
+                        <div class="progress-inner">
+                            <span class="progress-value" id="progress-value">100%</span>
+                            <span class="progress-label">Confidence</span>
+                        </div>
+                    </div>
+                    
+                    <p class="result-description" id="result-description">
+                        No significant symptoms of <strong>Chronic Kidney Disease</strong> were detected.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-title">💡 Did you know?</div>
+                <p>NephroAI uses a mathematically rigorous, leakage-free <strong>K-Nearest Neighbors (KNN) pipeline</strong> optimized using stratified 5-fold cross-validation. The preprocessing layers handle imputation and standard scaling in a single serialization unit, ensuring robust clinical generalizations.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 NephroAI Kidney Diagnostic Project. Formulated for Clinical AI Research.</p>
+    </footer>
+
+    <script>
+        document.getElementById('btn-predict').addEventListener('click', async () => {
+            const form = document.getElementById('prediction-form');
+            const placeholder = document.getElementById('placeholder');
+            const spinner = document.getElementById('spinner');
+            const resultContainer = document.getElementById('result-container');
+            
+            // Show loading state
+            placeholder.style.display = 'none';
+            resultContainer.style.display = 'none';
+            spinner.style.display = 'block';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = parseFloat(value);
+            });
+
+            try {
+                // Post to Flask predict endpoint
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Prediction API failed');
+                }
+
+                const result = await response.json();
+                
+                // Hide spinner
+                spinner.style.display = 'none';
+                
+                // Update UI based on prediction
+                const badge = document.getElementById('result-badge');
+                const progressCircle = document.getElementById('progress-circle');
+                const progressVal = document.getElementById('progress-value');
+                const description = document.getElementById('result-description');
+                
+                const confidence = result.confidence.toFixed(1);
+                progressVal.innerText = `${confidence}%`;
+                
+                // Update radial conic gradient based on confidence
+                let accentColor = '#8b5cf6'; // default primary
+                if (result.prediction === 1) {
+                    badge.innerText = 'CKD DETECTED';
+                    badge.className = 'result-badge diseased';
+                    accentColor = '#ef4444'; // red
+                    description.innerHTML = `High risk profile detected. Clinical indicators strongly suggest presence of <strong>Chronic Kidney Disease (CKD)</strong>.`;
+                } else {
+                    badge.innerText = 'HEALTHY PROFILE';
+                    badge.className = 'result-badge healthy';
+                    accentColor = '#10b981'; // green
+                    description.innerHTML = `Pathology parameters indicate a <strong>Healthy profile</strong> with no significant signs of renal impairment.`;
+                }
+                
+                progressCircle.style.background = `conic-gradient(${accentColor} ${result.confidence}%, rgba(255, 255, 255, 0.05) ${result.confidence}%)`;
+                
+                // Show result container
+                resultContainer.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error during prediction:', error);
+                spinner.style.display = 'none';
+                placeholder.style.display = 'flex';
+                alert('An error occurred during pathology analysis. Please ensure your backend server is running.');
+            }
+        });
+    </script>
+</body>
+</html>
